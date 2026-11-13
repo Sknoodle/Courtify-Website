@@ -1,0 +1,8 @@
+{
+  "name": "Courtify — Portable Pickleball Courts & Instant Booking",
+  "description": "Reserve modular pickleball courts across Canada, shop four turnkey portable court packages from standard to premier, and join early access for the Courtify mobile app.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
