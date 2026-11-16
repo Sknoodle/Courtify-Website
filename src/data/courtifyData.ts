@@ -1,10 +1,16 @@
+import heroCourtifyImage from '../assets/images/hero_courtify_pickleball_1794542298699.jpg';
+import culdesacBannerImage from '../assets/images/banner_culdesac_portable_court_1794802690667.jpg';
+import packageStandardImage from '../assets/images/package_standard_rally_1794542298970.jpg';
+import packagePlusImage from '../assets/images/package_plus_modular_1794542299493.jpg';
+import packageProImage from '../assets/images/package_pro_tournament_1794542300579.jpg';
+import packagePremierImage from '../assets/images/package_premier_estate_1794542300272.jpg';
+
 export type PageRoute = 'home' | 'finder' | 'packages' | 'app';
 
 export const COURTIFY_APP_URL = 'https://courtifyca.ai.studio';
 export const COURTIFY_APP_ICON_IMAGE = '/assets/aistudio/Courtify_App_Icon_905f34d4.png';
-export const HERO_IMAGE = '/src/assets/images/hero_courtify_pickleball_1794542298699.jpg';
-export const CULDESAC_BANNER_IMAGE =
-  '/src/assets/images/banner_culdesac_portable_court_1794802690667.jpg';
+export const HERO_IMAGE = heroCourtifyImage;
+export const CULDESAC_BANNER_IMAGE = culdesacBannerImage;
 
 export interface CourtPackage {
   id: string;
@@ -110,7 +116,7 @@ export const COURT_PACKAGES: CourtPackage[] = [
       '4 Beginner Paddles, 1 Beginner Portable Net, and 24 balls — turn any driveway or cul-de-sac into a court.',
     priceUsd: 350,
     retailValueUsd: 529.96,
-    image: '/src/assets/images/package_standard_rally_1794542298970.jpg',
+    image: packageStandardImage,
     imageNote: 'Temporary example image — actual product photos coming soon',
     footprint: '20 × 44 ft',
     setupTime: '10 min',
@@ -140,7 +146,7 @@ export const COURT_PACKAGES: CourtPackage[] = [
     tagline:
       '6 Advanced Paddles, 1 Portable Net, 1 Portable Court Line Set, and 36 balls for instant anywhere courts.',
     priceUsd: 635,
-    image: '/src/assets/images/package_plus_modular_1794542299493.jpg',
+    image: packagePlusImage,
     imageNote: 'Temporary example image — actual product photos coming soon',
     footprint: '20 × 44 ft',
     setupTime: '15 min',
@@ -171,7 +177,7 @@ export const COURT_PACKAGES: CourtPackage[] = [
       '6 Advanced Paddles, 1 Advanced Portable Net ($1,500 tier), and 36 balls for serious match play anywhere.',
     priceUsd: 2300,
     retailValueUsd: 3019.94,
-    image: '/src/assets/images/package_pro_tournament_1794542300579.jpg',
+    image: packageProImage,
     imageNote: 'Temporary example image — actual product photos coming soon',
     footprint: '20 × 44 ft',
     setupTime: '15 min',
@@ -202,7 +208,7 @@ export const COURT_PACKAGES: CourtPackage[] = [
       '12 Advanced Paddles, 1 Advanced Portable Net, and 60 balls — maximum gear and value for any venue or event.',
     priceUsd: 3400,
     retailValueUsd: 4299.88,
-    image: '/src/assets/images/package_premier_estate_1794542300272.jpg',
+    image: packagePremierImage,
     imageNote: 'Temporary example image — actual product photos coming soon',
     footprint: '20 × 44 ft',
     setupTime: '15 min',
