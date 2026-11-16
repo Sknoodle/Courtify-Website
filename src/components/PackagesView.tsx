@@ -13,7 +13,7 @@ interface CartItem {
   tierLabel: string;
   name: string;
   variantName: string;
-  priceCad: number;
+  priceUsd: number;
   quantity: number;
 }
 
@@ -34,12 +34,12 @@ export function PackagesView({ initialSelectedPackageId = null }: PackagesViewPr
 
   const [buyerName, setBuyerName] = useState('');
   const [buyerEmail, setBuyerEmail] = useState('');
-  const [postalCode, setPostalCode] = useState('');
+  const [zipCode, setZipCode] = useState('');
   const [orderSubmittedId, setOrderSubmittedId] = useState<string | null>(null);
   const [checkoutError, setCheckoutError] = useState<string | null>(null);
 
   const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
-  const subtotalCad = cart.reduce((sum, item) => sum + item.priceCad * item.quantity, 0);
+  const subtotalUsd = cart.reduce((sum, item) => sum + item.priceUsd * item.quantity, 0);
 
   const handleOpenDetail = (pkg: CourtPackage) => {
     setActivePackage(pkg);
@@ -70,7 +70,7 @@ export function PackagesView({ initialSelectedPackageId = null }: PackagesViewPr
       tierLabel: `${pkg.tierName} Bundle`,
       name: pkg.name,
       variantName: colorwayName,
-      priceCad: pkg.priceCad,
+      priceUsd: pkg.priceUsd,
     });
   };
 
@@ -80,7 +80,7 @@ export function PackagesView({ initialSelectedPackageId = null }: PackagesViewPr
       tierLabel: gear.category,
       name: gear.name,
       variantName: 'Courtify Standard Finish',
-      priceCad: gear.priceCad,
+      priceUsd: gear.priceUsd,
     });
   };
 
@@ -107,8 +107,8 @@ export function PackagesView({ initialSelectedPackageId = null }: PackagesViewPr
       setCheckoutError('Please enter a valid email address.');
       return;
     }
-    if (postalCode.trim().length < 5) {
-      setCheckoutError('Please enter a delivery postal code.');
+    if (zipCode.trim().length < 5) {
+      setCheckoutError('Please enter a valid Orange County / US ZIP code.');
       return;
     }
     const orderNum = `CTY-${Math.floor(1000 + Math.random() * 9000)}`;
@@ -124,16 +124,16 @@ export function PackagesView({ initialSelectedPackageId = null }: PackagesViewPr
           <div className="flex flex-wrap items-center gap-2 text-xs text-[#627F65]">
             <span className="font-semibold">Gear Up &amp; Save</span>
             <span aria-hidden="true">·</span>
-            <span>4 Courtify Packages (Standard to Premier)</span>
+            <span>4 Portable Court Packages (Standard to Premier)</span>
             <span aria-hidden="true">·</span>
             <span>Temporary example photos until actual photography is uploaded</span>
           </div>
           <h1 className="font-display text-3xl sm:text-4xl font-extrabold tracking-tight text-[#172E1B] text-balance">
-            The Courtify Bundles &amp; Gear Lineup.
+            Put a court in your driveway, cul-de-sac, or parking lot.
           </h1>
           <p className="text-sm sm:text-base text-[#172819]/80 leading-relaxed">
-            More gear. More games. More value. Choose from four portable pickleball court bundles or
-            shop individual paddles, nets, court lines, and balls below.
+            When no courts are open nearby in Orange County, unroll your own game anywhere flat.
+            Shop four turnkey portable bundles or individual paddles, nets, court lines, and balls.
           </p>
         </div>
 
@@ -211,11 +211,11 @@ export function PackagesView({ initialSelectedPackageId = null }: PackagesViewPr
                     </span>
                     <div className="text-right">
                       <span className="font-mono text-xl font-bold text-[#172E1B] tabular-nums">
-                        ${pkg.priceCad.toLocaleString()}
+                        ${pkg.priceUsd.toLocaleString()}
                       </span>
-                      {pkg.retailValueCad && (
+                      {pkg.retailValueUsd && (
                         <span className="block font-mono text-xs text-[#627F65] tabular-nums">
-                          Retail Value: ${pkg.retailValueCad.toLocaleString()}
+                          Retail Value: ${pkg.retailValueUsd.toLocaleString()}
                         </span>
                       )}
                     </div>
@@ -292,7 +292,7 @@ export function PackagesView({ initialSelectedPackageId = null }: PackagesViewPr
                       {pkg.name}
                     </div>
                     <div className="font-mono text-sm font-bold text-[#172E1B] tabular-nums mt-1">
-                      ${pkg.priceCad.toLocaleString()}
+                      ${pkg.priceUsd.toLocaleString()}
                     </div>
                   </th>
                 ))}
@@ -303,7 +303,7 @@ export function PackagesView({ initialSelectedPackageId = null }: PackagesViewPr
                 <td className="p-5 font-medium text-[#627F65]">Retail Value</td>
                 {COURT_PACKAGES.map((pkg) => (
                   <td key={pkg.id} className="p-5 font-mono text-[#172E1B] tabular-nums">
-                    {pkg.retailValueCad ? `$${pkg.retailValueCad.toLocaleString()}` : 'Bundle Pricing'}
+                    {pkg.retailValueUsd ? `$${pkg.retailValueUsd.toLocaleString()}` : 'Bundle Pricing'}
                   </td>
                 ))}
               </tr>
@@ -455,11 +455,11 @@ export function PackagesView({ initialSelectedPackageId = null }: PackagesViewPr
 
                 <div className="flex items-baseline gap-3">
                   <span className="font-mono text-2xl font-bold text-[#172E1B] tabular-nums">
-                    ${activePackage.priceCad.toLocaleString()}
+                    ${activePackage.priceUsd.toLocaleString()}
                   </span>
-                  {activePackage.retailValueCad && (
+                  {activePackage.retailValueUsd && (
                     <span className="font-mono text-xs text-[#627F65] line-through tabular-nums">
-                      Retail ${activePackage.retailValueCad.toLocaleString()}
+                      Retail ${activePackage.retailValueUsd.toLocaleString()}
                     </span>
                   )}
                 </div>
@@ -523,7 +523,7 @@ export function PackagesView({ initialSelectedPackageId = null }: PackagesViewPr
                 }}
                 className="w-full py-3 px-4 text-sm font-semibold text-[#FCFFEB] bg-[#172E1B] hover:bg-[#627F65] rounded-lg transition-colors cursor-pointer"
               >
-                Add to Bag — ${activePackage.priceCad.toLocaleString()}
+                Add to Bag — ${activePackage.priceUsd.toLocaleString()}
               </button>
             </div>
           </div>
@@ -561,9 +561,9 @@ export function PackagesView({ initialSelectedPackageId = null }: PackagesViewPr
                     <span>Order #{orderSubmittedId} Confirmed</span>
                   </div>
                   <p className="text-xs text-[#172819]/80 leading-relaxed">
-                    Thank you, {buyerName}. Our Courtify team will send shipping and delivery
-                    details to <span className="font-semibold">{buyerEmail}</span> within 1 business
-                    day.
+                    Thank you, {buyerName}. Our Orange County Courtify team will send delivery and
+                    pickup details to <span className="font-semibold">{buyerEmail}</span> within 1
+                    business day.
                   </p>
                 </div>
               ) : cart.length === 0 ? (
@@ -586,7 +586,7 @@ export function PackagesView({ initialSelectedPackageId = null }: PackagesViewPr
                         <div className="text-sm font-semibold text-[#172E1B]">{item.name}</div>
                         <div className="text-xs text-[#172819]/65">{item.variantName}</div>
                         <div className="font-mono text-xs font-semibold text-[#172E1B] tabular-nums pt-1">
-                          ${(item.priceCad * item.quantity).toFixed(2)}
+                          ${(item.priceUsd * item.quantity).toFixed(2)}
                         </div>
                       </div>
 
@@ -642,9 +642,9 @@ export function PackagesView({ initialSelectedPackageId = null }: PackagesViewPr
                   <input
                     type="text"
                     required
-                    value={postalCode}
-                    onChange={(e) => setPostalCode(e.target.value)}
-                    placeholder="Postal / ZIP Code"
+                    value={zipCode}
+                    onChange={(e) => setZipCode(e.target.value)}
+                    placeholder="Delivery ZIP Code (e.g. 92618)"
                     className="w-full h-10 px-3 rounded-lg border border-[#A1CEA7] text-sm focus:outline-none focus:border-[#172E1B]"
                   />
                 </div>
@@ -656,9 +656,13 @@ export function PackagesView({ initialSelectedPackageId = null }: PackagesViewPr
                 )}
 
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-[#627F65]">Subtotal</span>
+                  <span className="text-[#627F65]">Subtotal (Free OC Delivery)</span>
                   <span className="font-mono font-bold text-[#172E1B] tabular-nums">
-                    ${subtotalCad.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    $
+                    {subtotalUsd.toLocaleString(undefined, {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    })}
                   </span>
                 </div>
 

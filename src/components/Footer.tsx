@@ -8,55 +8,56 @@ interface FooterProps {
 
 export function Footer({ onNavigate }: FooterProps) {
   return (
-    <footer className="bg-[#172E1B] text-[#FCFFEB] border-t border-[#627F65]/40 mt-20">
+    <footer className="bg-[#F4F9E6] text-[#172E1B] border-t border-[#A1CEA7]/70 mt-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-8">
-          <div className="space-y-2.5 max-w-sm">
+          <div className="space-y-3 max-w-sm">
             <button
               type="button"
               onClick={() => onNavigate('home')}
               aria-label="Courtify Home"
-              className="inline-block bg-[#FCFFEB] px-3 py-1 rounded-xl cursor-pointer"
+              className="inline-flex items-center cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#627F65] rounded"
             >
               <CourtifyLogo size="footer" />
             </button>
-            <p className="text-xs font-medium tracking-wide text-[#FCFFAD]">
+            <p className="text-xs font-semibold tracking-wide text-[#627F65]">
               PLAY / CONNECT / REPEAT
             </p>
-            <p className="text-sm text-[#FCFFEB]/80 leading-relaxed">
-              More than a game. It&apos;s a lifestyle. Real gear, real players, real impact.
+            <p className="text-sm text-[#172819]/80 leading-relaxed">
+              More than a game. It&apos;s a lifestyle. Find open courts across Orange County or set
+              up your own anywhere.
             </p>
           </div>
 
           <nav
             aria-label="Footer Navigation"
-            className="flex flex-wrap items-center gap-6 text-sm font-medium text-[#FCFFEB]/80"
+            className="flex flex-wrap items-center gap-6 text-sm font-medium text-[#172819]/80"
           >
             <button
               type="button"
               onClick={() => onNavigate('home')}
-              className="hover:text-[#FCFFAD] transition-colors cursor-pointer whitespace-nowrap"
+              className="hover:text-[#172E1B] hover:underline underline-offset-4 transition-colors cursor-pointer whitespace-nowrap"
             >
               Home
             </button>
             <button
               type="button"
-              onClick={() => onNavigate('book')}
-              className="hover:text-[#FCFFAD] transition-colors cursor-pointer whitespace-nowrap"
+              onClick={() => onNavigate('finder')}
+              className="hover:text-[#172E1B] hover:underline underline-offset-4 transition-colors cursor-pointer whitespace-nowrap"
             >
-              Book Court
+              Find Courts
             </button>
             <button
               type="button"
               onClick={() => onNavigate('packages')}
-              className="hover:text-[#FCFFAD] transition-colors cursor-pointer whitespace-nowrap"
+              className="hover:text-[#172E1B] hover:underline underline-offset-4 transition-colors cursor-pointer whitespace-nowrap"
             >
               Bundles &amp; Gear
             </button>
             <button
               type="button"
               onClick={() => onNavigate('app')}
-              className="hover:text-[#FCFFAD] transition-colors cursor-pointer whitespace-nowrap"
+              className="hover:text-[#172E1B] hover:underline underline-offset-4 transition-colors cursor-pointer whitespace-nowrap"
             >
               Early Access
             </button>
@@ -67,8 +68,8 @@ export function Footer({ onNavigate }: FooterProps) {
           </div>
         </div>
 
-        <div className="mt-8 pt-6 border-t border-[#627F65]/40 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 text-xs text-[#A1CEA7]">
-          <p>© {new Date().getFullYear()} Courtify. All rights reserved.</p>
+        <div className="mt-8 pt-6 border-t border-[#A1CEA7]/60 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 text-xs text-[#627F65]">
+          <p>© {new Date().getFullYear()} Courtify · Orange County, CA</p>
           <div className="flex items-center gap-2">
             <span>@courtify</span>
             <span aria-hidden="true">|</span>

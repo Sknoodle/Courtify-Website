@@ -3,25 +3,26 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { AnimatePresence, MotionConfig, motion } from 'motion/react';
 import {
-  BookingRecord,
   EarlyAccessRecord,
   PageRoute,
+  computeLiveCourts,
+  getOrangeCountyTimeInfo,
 } from './data/courtifyData';
 import { Header } from './components/Header';
 import { Footer } from './components/Footer';
 import { HomeView } from './components/HomeView';
-import { BookingView } from './components/BookingView';
+import { CourtFinderView } from './components/CourtFinderView';
 import { PackagesView } from './components/PackagesView';
 import { AppView } from './components/AppView';
 
-const BOOKINGS_STORAGE_KEY = 'courtify_bookings_v1';
 const WAITLIST_STORAGE_KEY = 'courtify_early_access_v1';
 
 function parseHashRoute(): PageRoute {
   const hash = window.location.hash.replace('#', '');
-  if (hash === 'book' || hash === 'packages' || hash === 'app' || hash === 'home') {
+  if (hash === 'finder' || hash === 'packages' || hash === 'app' || hash === 'home') {
     return hash;
   }
   return 'home';
@@ -30,22 +31,33 @@ function parseHashRoute(): PageRoute {
 export default function App() {
   const [currentPage, setCurrentPage] = useState<PageRoute>(parseHashRoute);
 
-  const [quickFilters, setQuickFilters] = useState<{
+  const [finderFilters, setFinderFilters] = useState<{
     city?: string;
-    date?: string;
-    window?: string;
+    filter?: 'All' | 'Open Now';
   }>({});
 
   const [selectedPackageId, setSelectedPackageId] = useState<string | null>(null);
 
-  const [bookings, setBookings] = useState<BookingRecord[]>(() => {
-    try {
-      const saved = localStorage.getItem(BOOKINGS_STORAGE_KEY);
-      return saved ? (JSON.parse(saved) as BookingRecord[]) : [];
-    } catch {
-      return [];
-    }
-  });
+  // Live synced clock + court occupancy adjustments shared between Find Courts & App preview
+  const [syncTimestamp, setSyncTimestamp] = useState<Date>(() => new Date());
+  const [courtAdjustments, setCourtAdjustments] = useState<Record<string, number>>({});
+
+  useEffect(() => {
+    const interval = window.setInterval(() => {
+      setSyncTimestamp(new Date());
+    }, 15000);
+    return () => window.clearInterval(interval);
+  }, []);
+
+  const liveCourts = useMemo(
+    () => computeLiveCourts(syncTimestamp, courtAdjustments),
+    [syncTimestamp, courtAdjustments]
+  );
+
+  const lastSyncedLabel = useMemo(
+    () => `${getOrangeCountyTimeInfo(syncTimestamp).formattedTime} PT`,
+    [syncTimestamp]
+  );
 
   const [earlyAccessSignups, setEarlyAccessSignups] = useState<EarlyAccessRecord[]>(() => {
     try {
@@ -55,10 +67,6 @@ export default function App() {
       return [];
     }
   });
-
-  useEffect(() => {
-    localStorage.setItem(BOOKINGS_STORAGE_KEY, JSON.stringify(bookings));
-  }, [bookings]);
 
   useEffect(() => {
     localStorage.setItem(WAITLIST_STORAGE_KEY, JSON.stringify(earlyAccessSignups));
@@ -80,9 +88,9 @@ export default function App() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const handleQuickSearch = (city: string, date: string, windowPeriod: string) => {
-    setQuickFilters({ city, date, window: windowPeriod });
-    navigate('book');
+  const handleQuickLocate = (city: string, availabilityFilter: 'All' | 'Open Now') => {
+    setFinderFilters({ city, filter: availabilityFilter });
+    navigate('finder');
   };
 
   const handleSelectPackageFromHome = (packageId: string) => {
@@ -90,21 +98,12 @@ export default function App() {
     navigate('packages');
   };
 
-  const handleCreateBooking = (
-    data: Omit<BookingRecord, 'id' | 'code' | 'createdAt'>
-  ): BookingRecord => {
-    const record: BookingRecord = {
-      ...data,
-      id: `bk-${Date.now()}`,
-      code: `CTY-${Math.floor(1000 + Math.random() * 9000)}`,
-      createdAt: new Date().toISOString(),
-    };
-    setBookings((prev) => [record, ...prev]);
-    return record;
-  };
-
-  const handleCancelBooking = (bookingId: string) => {
-    setBookings((prev) => prev.filter((b) => b.id !== bookingId));
+  const handleReportCheckIn = (courtId: string, delta: number) => {
+    setCourtAdjustments((prev) => ({
+      ...prev,
+      [courtId]: (prev[courtId] ?? 0) + delta,
+    }));
+    setSyncTimestamp(new Date());
   };
 
   const handleJoinWaitlist = (
@@ -121,56 +120,75 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#FCFFEB] text-[#172819]">
-      <Header
-        currentPage={currentPage}
-        onNavigate={(page) => {
-          if (page !== 'packages') setSelectedPackageId(null);
-          navigate(page);
-        }}
-        onQuickBook={() => {
-          setQuickFilters({});
-          navigate('book');
-        }}
-      />
+    <MotionConfig reducedMotion="user">
+      <motion.div
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+        className="min-h-screen flex flex-col bg-[#FCFFEB] text-[#172819]"
+      >
+        <Header
+          currentPage={currentPage}
+          onNavigate={(page) => {
+            if (page !== 'packages') setSelectedPackageId(null);
+            navigate(page);
+          }}
+          onFindCourts={() => {
+            setFinderFilters({ city: 'All OC', filter: 'All' });
+            navigate('finder');
+          }}
+        />
 
-      <main className="flex-1 pb-12">
-        {currentPage === 'home' && (
-          <HomeView
-            onNavigate={navigate}
-            onQuickSearch={handleQuickSearch}
-            onSelectPackage={handleSelectPackageFromHome}
-          />
-        )}
+        <main className="flex-1 pb-12">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={currentPage}
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.24, ease: [0.16, 1, 0.3, 1] }}
+            >
+              {currentPage === 'home' && (
+                <HomeView
+                  onNavigate={navigate}
+                  onQuickLocate={handleQuickLocate}
+                  onSelectPackage={handleSelectPackageFromHome}
+                />
+              )}
 
-        {currentPage === 'book' && (
-          <BookingView
-            key={`${quickFilters.city ?? 'all'}-${quickFilters.date ?? 'today'}-${quickFilters.window ?? 'all'}`}
-            initialCity={quickFilters.city}
-            initialDate={quickFilters.date}
-            initialWindow={quickFilters.window}
-            bookings={bookings}
-            onCreateBooking={handleCreateBooking}
-            onCancelBooking={handleCancelBooking}
-          />
-        )}
+              {currentPage === 'finder' && (
+                <CourtFinderView
+                  key={`${finderFilters.city ?? 'all'}-${finderFilters.filter ?? 'all'}`}
+                  initialCity={finderFilters.city}
+                  initialFilter={finderFilters.filter}
+                  courts={liveCourts}
+                  lastSyncedLabel={lastSyncedLabel}
+                  onSyncNow={() => setSyncTimestamp(new Date())}
+                  onReportCheckIn={handleReportCheckIn}
+                  onNavigate={navigate}
+                />
+              )}
 
-        {currentPage === 'packages' && (
-          <PackagesView
-            key={selectedPackageId ?? 'catalog'}
-            initialSelectedPackageId={selectedPackageId}
-          />
-        )}
+              {currentPage === 'packages' && (
+                <PackagesView
+                  key={selectedPackageId ?? 'catalog'}
+                  initialSelectedPackageId={selectedPackageId}
+                />
+              )}
 
-        {currentPage === 'app' && (
-          <AppView
-            signups={earlyAccessSignups}
-            onJoinWaitlist={handleJoinWaitlist}
-          />
-        )}
-      </main>
+              {currentPage === 'app' && (
+                <AppView
+                  signups={earlyAccessSignups}
+                  liveCourts={liveCourts}
+                  onJoinWaitlist={handleJoinWaitlist}
+                />
+              )}
+            </motion.div>
+          </AnimatePresence>
+        </main>
 
-      <Footer onNavigate={navigate} />
-    </div>
+        <Footer onNavigate={navigate} />
+      </motion.div>
+    </MotionConfig>
   );
 }

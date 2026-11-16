@@ -1,6 +1,6 @@
 {
-  "name": "Courtify — Portable Pickleball Courts & Instant Booking",
-  "description": "Reserve modular pickleball courts across Canada, shop four turnkey portable court packages from standard to premier, and join early access for the Courtify mobile app.",
+  "name": "Courtify — Find Open Pickleball Courts & Portable Court Packages in Orange County",
+  "description": "Find available pickleball courts around Orange County, CA with the Courtify app, or set up your own portable court in a driveway, cul-de-sac, or parking lot.",
   "requestFramePermissions": [],
   "majorCapabilities": [
     "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"

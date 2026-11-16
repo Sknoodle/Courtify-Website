@@ -1,38 +1,95 @@
-import { useState } from 'react';
-import { ArrowRight, Calendar, Check, Clock, MapPin } from 'lucide-react';
+import { useRef, useState } from 'react';
+import { motion, useScroll, useTransform } from 'motion/react';
+import { ArrowRight, Check, MapPin, SlidersHorizontal } from 'lucide-react';
 import {
   COURTIFY_PILLARS,
   COURT_PACKAGES,
+  CULDESAC_BANNER_IMAGE,
   HERO_IMAGE,
   PageRoute,
-  getUpcomingDates,
 } from '../data/courtifyData';
 import { ResilientImage } from './ResilientImage';
 import { CourtifyAppIcon } from './CourtifyAppIcon';
+import { CourtifyLogo } from './CourtifyLogo';
 
 interface HomeViewProps {
   onNavigate: (page: PageRoute) => void;
-  onQuickSearch: (city: string, date: string, windowPeriod: string) => void;
+  onQuickLocate: (city: string, availabilityFilter: 'All' | 'Open Now') => void;
   onSelectPackage: (packageId: string) => void;
 }
 
-export function HomeView({ onNavigate, onQuickSearch, onSelectPackage }: HomeViewProps) {
-  const dates = getUpcomingDates(7);
-  const [city, setCity] = useState<string>('Toronto');
-  const [selectedDate, setSelectedDate] = useState<string>(dates[0].iso);
-  const [timeWindow, setTimeWindow] = useState<string>('Evening');
+export function HomeView({ onNavigate, onQuickLocate, onSelectPackage }: HomeViewProps) {
+  const [city, setCity] = useState<string>('Irvine');
+  const [availabilityFilter, setAvailabilityFilter] = useState<'All' | 'Open Now'>('Open Now');
 
-  const handleQuickFind = (e: React.FormEvent) => {
+  const bannerRef = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: bannerRef,
+    offset: ['start start', 'end start'],
+  });
+
+  const bgY = useTransform(scrollYProgress, [0, 1], ['0%', '26%']);
+  const bgScale = useTransform(scrollYProgress, [0, 1], [1.06, 1.18]);
+  const overlayY = useTransform(scrollYProgress, [0, 1], ['0%', '14%']);
+  const overlayOpacity = useTransform(scrollYProgress, [0, 0.9], [1, 0.25]);
+
+  const handleLocateSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onQuickSearch(city, selectedDate, timeWindow);
+    onQuickLocate(city, availabilityFilter);
   };
 
   return (
-    <div className="space-y-20">
-      {/* Hero Section + Full-Width Quick-Booking Strip */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 sm:pt-12">
+    <div className="space-y-16 sm:space-y-20">
+      {/* Top Scrolling Parallax Banner: Cul-de-Sac Portable Court */}
+      <div
+        ref={bannerRef}
+        className="relative w-full h-[420px] sm:h-[520px] overflow-hidden border-b border-[#A1CEA7]/70 bg-[#172E1B]"
+      >
+        <motion.div
+          style={{ y: bgY, scale: bgScale }}
+          className="absolute inset-0 -top-12 -bottom-12 will-change-transform"
+        >
+          <ResilientImage
+            src={CULDESAC_BANNER_IMAGE}
+            alt="Friends playing pickleball on a portable court in the middle of a sunny cul-de-sac"
+            fallbackTitle="Portable Court in a Cul-de-Sac"
+            className="w-full h-full object-cover object-center"
+          />
+        </motion.div>
+
+        <div
+          aria-hidden="true"
+          className="absolute inset-0 bg-gradient-to-b from-[#FCFFEB]/55 via-transparent via-40% to-[#172E1B]/85"
+        />
+
+        <motion.div
+          style={{ y: overlayY, opacity: overlayOpacity }}
+          className="relative z-10 max-w-7xl mx-auto h-full px-4 sm:px-6 lg:px-8 py-8 sm:py-10 flex flex-col justify-between items-center text-center"
+        >
+          {/* Top of Banner: Unboxed Primary Courtify Logo */}
+          <div className="pt-1">
+            <CourtifyLogo
+              size="hero"
+              className="drop-shadow-[0_2px_12px_rgba(252,255,235,0.9)]"
+            />
+          </div>
+
+          {/* Bottom of Banner: PICKLEBALL IS POSSIBLE ANYWHERE. */}
+          <div className="space-y-2 max-w-3xl">
+            <p className="font-display text-2xl sm:text-4xl md:text-5xl font-extrabold tracking-tight text-[#FCFFEB] drop-shadow-sm">
+              PICKLEBALL IS POSSIBLE ANYWHERE.
+            </p>
+            <p className="text-xs sm:text-sm font-medium text-[#FCFFAD]">
+              Driveways · Cul-de-Sacs · Parking Lots · Orange County Parks
+            </p>
+          </div>
+        </motion.div>
+      </div>
+
+      {/* Hero Section + Orange County Quick Court Finder Strip */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-stretch">
-          {/* Left Column: Proposition from Courtify Flyer */}
+          {/* Left Column: Proposition */}
           <div className="lg:col-span-5 flex flex-col justify-between py-2 space-y-8">
             <div className="space-y-5">
               <div className="flex items-center gap-2 text-xs font-semibold tracking-wide text-[#627F65]">
@@ -41,29 +98,31 @@ export function HomeView({ onNavigate, onQuickSearch, onSelectPackage }: HomeVie
                 <span>Connect</span>
                 <span aria-hidden="true">/</span>
                 <span>Repeat</span>
+                <span aria-hidden="true">·</span>
+                <span>Orange County, CA</span>
               </div>
 
               <h1
                 className="font-display font-extrabold tracking-tight text-[#172E1B] text-balance leading-[1.06]"
                 style={{ fontSize: 'clamp(2.25rem, 4vw, 3.35rem)' }}
               >
-                Premium pickleball gear for every court.
+                Pickleball is possible anywhere.
               </h1>
 
               <p className="text-base sm:text-lg text-[#172819]/80 leading-relaxed max-w-xl">
-                Whether you&apos;re just getting started or chasing your next match, Courtify brings
-                you high-quality gear designed for performance, durability, and style—plus instant
-                court reservations.
+                Check live court availability across Orange County in the Courtify app. If every
+                nearby park is packed, turn your driveway, cul-de-sac, or parking lot into a court
+                in minutes.
               </p>
             </div>
 
             <div className="flex flex-wrap items-center gap-5 pt-2">
               <button
                 type="button"
-                onClick={() => onNavigate('book')}
+                onClick={() => onNavigate('finder')}
                 className="inline-flex items-center gap-2 px-6 py-3 text-sm font-semibold text-[#FCFFEB] bg-[#172E1B] hover:bg-[#627F65] rounded-lg transition-colors cursor-pointer whitespace-nowrap focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#627F65]"
               >
-                <span>Book a Court</span>
+                <span>Find Open Courts</span>
                 <ArrowRight className="w-4 h-4" />
               </button>
 
@@ -72,13 +131,13 @@ export function HomeView({ onNavigate, onQuickSearch, onSelectPackage }: HomeVie
                 onClick={() => onNavigate('packages')}
                 className="inline-flex items-center gap-1.5 text-sm font-semibold text-[#172E1B] hover:text-[#627F65] transition-colors cursor-pointer whitespace-nowrap"
               >
-                <span>Explore 4 Court Bundles</span>
+                <span>Shop Portable Court Bundles</span>
                 <ArrowRight className="w-4 h-4" />
               </button>
             </div>
           </div>
 
-          {/* Right Column: Full-bleed Architectural Court Photo */}
+          {/* Right Column: Architectural Court Photo */}
           <div className="lg:col-span-7 relative rounded-2xl overflow-hidden border border-[#A1CEA7]/70 min-h-[280px] sm:min-h-[380px]">
             <ResilientImage
               src={HERO_IMAGE}
@@ -92,83 +151,61 @@ export function HomeView({ onNavigate, onQuickSearch, onSelectPackage }: HomeVie
                   Better Gear. Bigger Rallies.
                 </p>
                 <p className="text-sm sm:text-base font-medium text-[#FCFFEB]/95 mt-0.5">
-                  Set up in minutes · Play anywhere · Open daily 07:00–21:30
+                  Driveways · Cul-de-sacs · Parking lots · Orange County parks
                 </p>
               </div>
               <span className="font-mono text-xs tabular-nums text-[#FCFFEB] bg-[#172E1B]/85 border border-[#A1CEA7]/40 px-3 py-1.5 rounded-md whitespace-nowrap self-start sm:self-auto">
-                20 × 44 ft Regulation
+                Sets Up in Minutes
               </span>
             </div>
           </div>
         </div>
 
-        {/* Full-Width 4-Column Quick-Booking Strip */}
+        {/* Full-Width Quick Court Locator Bar */}
         <form
-          onSubmit={handleQuickFind}
-          aria-label="Quick court finder"
-          className="mt-8 bg-white border border-[#A1CEA7]/70 rounded-xl p-4 sm:p-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 items-end"
+          onSubmit={handleLocateSubmit}
+          aria-label="Find open courts in Orange County"
+          className="mt-8 bg-white border border-[#A1CEA7]/70 rounded-xl p-4 sm:p-5 grid grid-cols-1 sm:grid-cols-3 gap-4 items-end"
         >
           <div className="space-y-1.5">
             <label
-              htmlFor="quick-city"
+              htmlFor="quick-oc-city"
               className="flex items-center gap-1.5 text-xs font-medium text-[#627F65]"
             >
               <MapPin className="w-3.5 h-3.5 text-[#627F65]" />
-              <span>City Hub</span>
+              <span>Orange County Area</span>
             </label>
             <select
-              id="quick-city"
+              id="quick-oc-city"
               value={city}
               onChange={(e) => setCity(e.target.value)}
               className="w-full h-11 px-3 rounded-lg border border-[#A1CEA7]/70 bg-[#FCFFEB] text-sm font-medium text-[#172E1B] focus:outline-none focus:border-[#627F65]"
             >
-              <option value="Toronto">Toronto, ON</option>
-              <option value="Vancouver">Vancouver, BC</option>
-              <option value="Calgary">Calgary, AB</option>
-              <option value="Montreal">Montreal, QC</option>
+              <option value="All OC">All Orange County</option>
+              <option value="Irvine">Irvine, CA</option>
+              <option value="Newport Beach">Newport Beach, CA</option>
+              <option value="Huntington Beach">Huntington Beach, CA</option>
+              <option value="Costa Mesa">Costa Mesa, CA</option>
+              <option value="Laguna Niguel">Laguna Niguel, CA</option>
             </select>
           </div>
 
           <div className="space-y-1.5">
             <label
-              htmlFor="quick-date"
+              htmlFor="quick-availability"
               className="flex items-center gap-1.5 text-xs font-medium text-[#627F65]"
             >
-              <Calendar className="w-3.5 h-3.5 text-[#627F65]" />
-              <span>Play Date</span>
+              <SlidersHorizontal className="w-3.5 h-3.5 text-[#627F65]" />
+              <span>Court Availability</span>
             </label>
             <select
-              id="quick-date"
-              value={selectedDate}
-              onChange={(e) => setSelectedDate(e.target.value)}
+              id="quick-availability"
+              value={availabilityFilter}
+              onChange={(e) => setAvailabilityFilter(e.target.value as 'All' | 'Open Now')}
               className="w-full h-11 px-3 rounded-lg border border-[#A1CEA7]/70 bg-[#FCFFEB] text-sm font-medium text-[#172E1B] focus:outline-none focus:border-[#627F65]"
             >
-              {dates.map((d) => (
-                <option key={d.iso} value={d.iso}>
-                  {d.shortDay} — {d.label}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div className="space-y-1.5">
-            <label
-              htmlFor="quick-window"
-              className="flex items-center gap-1.5 text-xs font-medium text-[#627F65]"
-            >
-              <Clock className="w-3.5 h-3.5 text-[#627F65]" />
-              <span>Preferred Window</span>
-            </label>
-            <select
-              id="quick-window"
-              value={timeWindow}
-              onChange={(e) => setTimeWindow(e.target.value)}
-              className="w-full h-11 px-3 rounded-lg border border-[#A1CEA7]/70 bg-[#FCFFEB] text-sm font-medium text-[#172E1B] focus:outline-none focus:border-[#627F65]"
-            >
-              <option value="All">Any Time (07:00–21:00)</option>
-              <option value="Morning">Morning (07:00–11:30)</option>
-              <option value="Midday">Midday (12:00–16:00)</option>
-              <option value="Evening">Evening (16:30–21:00)</option>
+              <option value="Open Now">Open Courts Right Now</option>
+              <option value="All">Show All OC Locations</option>
             </select>
           </div>
 
@@ -176,7 +213,7 @@ export function HomeView({ onNavigate, onQuickSearch, onSelectPackage }: HomeVie
             type="submit"
             className="w-full h-11 px-5 text-sm font-semibold text-[#FCFFEB] bg-[#627F65] hover:bg-[#172E1B] rounded-lg transition-colors cursor-pointer whitespace-nowrap flex items-center justify-center gap-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#627F65]"
           >
-            <span>Find Open Courts</span>
+            <span>Check Nearby Courts</span>
             <ArrowRight className="w-4 h-4" />
           </button>
         </form>
@@ -191,8 +228,8 @@ export function HomeView({ onNavigate, onQuickSearch, onSelectPackage }: HomeVie
               More than a game. It&apos;s a lifestyle.
             </h2>
             <p className="text-sm sm:text-base text-[#172819]/75 leading-relaxed">
-              Courtify is for the ones who show up — for the games, the friends, and the moments
-              that make it all worth it.
+              Whether you&apos;re locating an open OC park court on the app or laying down lines in
+              your own driveway, Courtify brings premium pickleball gear anywhere you play.
             </p>
           </div>
 
@@ -226,13 +263,13 @@ export function HomeView({ onNavigate, onQuickSearch, onSelectPackage }: HomeVie
                 <div className="font-mono text-2xl font-semibold text-[#172E1B] tabular-nums">
                   10–15m
                 </div>
-                <div className="text-xs text-[#627F65] mt-1">Portable net setup anywhere</div>
+                <div className="text-xs text-[#627F65] mt-1">Set up in any driveway or lot</div>
               </div>
               <div>
                 <div className="font-mono text-2xl font-semibold text-[#172E1B] tabular-nums">
-                  18 courts
+                  91 courts
                 </div>
-                <div className="text-xs text-[#627F65] mt-1">Bookable across 4 metro hubs</div>
+                <div className="text-xs text-[#627F65] mt-1">Tracked live across 10 OC parks</div>
               </div>
             </div>
           </div>
@@ -244,10 +281,10 @@ export function HomeView({ onNavigate, onQuickSearch, onSelectPackage }: HomeVie
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8">
           <div>
             <p className="text-xs font-semibold text-[#627F65] mb-1.5">
-              Gear Up &amp; Save · Temporary Example Imagery
+              Play Anywhere · Temporary Example Imagery
             </p>
             <h2 className="font-display text-2xl sm:text-3xl font-bold tracking-tight text-[#172E1B]">
-              The Courtify Bundles — More gear. More games. More value.
+              No open court nearby? Bring the court to you.
             </h2>
           </div>
           <button
@@ -255,7 +292,7 @@ export function HomeView({ onNavigate, onQuickSearch, onSelectPackage }: HomeVie
             onClick={() => onNavigate('packages')}
             className="inline-flex items-center gap-1.5 text-sm font-semibold text-[#172E1B] hover:text-[#627F65] transition-colors cursor-pointer whitespace-nowrap shrink-0"
           >
-            <span>Shop bundles &amp; individual lineup</span>
+            <span>Shop 4 bundles &amp; lineup</span>
             <ArrowRight className="w-4 h-4" />
           </button>
         </div>
@@ -292,11 +329,11 @@ export function HomeView({ onNavigate, onQuickSearch, onSelectPackage }: HomeVie
                 <div className="pt-3 border-t border-[#A1CEA7]/40 flex items-center justify-between">
                   <div>
                     <span className="font-mono text-sm font-bold text-[#172E1B] tabular-nums">
-                      ${pkg.priceCad.toLocaleString()}
+                      ${pkg.priceUsd.toLocaleString()}
                     </span>
-                    {pkg.retailValueCad && (
+                    {pkg.retailValueUsd && (
                       <span className="block font-mono text-[11px] text-[#627F65] line-through tabular-nums">
-                        Retail ${pkg.retailValueCad.toLocaleString()}
+                        Retail ${pkg.retailValueUsd.toLocaleString()}
                       </span>
                     )}
                   </div>
@@ -322,16 +359,22 @@ export function HomeView({ onNavigate, onQuickSearch, onSelectPackage }: HomeVie
               Real Gear. Real Players. Real Impact.
             </p>
             <h2 className="font-display text-2xl sm:text-3xl font-bold tracking-tight text-balance">
-              Book courts, find open rallies, and track your Courtify gear in one app.
+              Find open Orange County courts in real time with the Courtify app.
             </h2>
             <ul className="space-y-2 text-sm text-[#FCFFEB]/85 pt-1">
               <li className="flex items-center gap-2">
                 <Check className="w-4 h-4 text-[#FCFFAD] shrink-0" />
-                <span>Live court availability alerts across Toronto, Vancouver, Calgary, and Montreal</span>
+                <span>
+                  Live open-court availability across Irvine, Newport Beach, Costa Mesa, Laguna
+                  Niguel, and Huntington Beach
+                </span>
               </li>
               <li className="flex items-center gap-2">
                 <Check className="w-4 h-4 text-[#FCFFAD] shrink-0" />
-                <span>QR gate entry and one-tap split billing for your doubles group</span>
+                <span>
+                  Share your own pop-up driveway, cul-de-sac, or parking-lot game when local parks
+                  are full
+                </span>
               </li>
             </ul>
           </div>

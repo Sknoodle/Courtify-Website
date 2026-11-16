@@ -6,17 +6,17 @@ import { CourtifyLogo } from './CourtifyLogo';
 interface HeaderProps {
   currentPage: PageRoute;
   onNavigate: (page: PageRoute) => void;
-  onQuickBook: () => void;
+  onFindCourts: () => void;
 }
 
 const NAV_ITEMS: { id: PageRoute; label: string }[] = [
   { id: 'home', label: 'Home' },
-  { id: 'book', label: 'Book Court' },
+  { id: 'finder', label: 'Find Courts' },
   { id: 'packages', label: 'Packages' },
   { id: 'app', label: 'Get the App' },
 ];
 
-export function Header({ currentPage, onNavigate, onQuickBook }: HeaderProps) {
+export function Header({ currentPage, onNavigate, onFindCourts }: HeaderProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const handleNav = (page: PageRoute) => {
@@ -27,7 +27,7 @@ export function Header({ currentPage, onNavigate, onQuickBook }: HeaderProps) {
   return (
     <header className="sticky top-0 z-40 bg-[#FCFFEB]/95 backdrop-blur-sm border-b border-[#A1CEA7]/50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-8">
-        {/* Zone 1: Official Courtify SVG Logo */}
+        {/* Zone 1: Full unclipped Courtify SVG Logo */}
         <button
           type="button"
           onClick={() => handleNav('home')}
@@ -73,11 +73,11 @@ export function Header({ currentPage, onNavigate, onQuickBook }: HeaderProps) {
             type="button"
             onClick={() => {
               setMobileMenuOpen(false);
-              onQuickBook();
+              onFindCourts();
             }}
             className="hidden md:inline-flex items-center justify-center px-4 py-2 text-sm font-semibold text-[#FCFFEB] bg-[#172E1B] hover:bg-[#627F65] rounded-lg transition-colors whitespace-nowrap shrink-0 cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#627F65]"
           >
-            Quick Book
+            Check Open Courts
           </button>
 
           <button
@@ -117,11 +117,11 @@ export function Header({ currentPage, onNavigate, onQuickBook }: HeaderProps) {
               type="button"
               onClick={() => {
                 setMobileMenuOpen(false);
-                onQuickBook();
+                onFindCourts();
               }}
               className="w-full py-2.5 px-4 text-sm font-semibold text-[#FCFFEB] bg-[#172E1B] hover:bg-[#627F65] rounded-lg transition-colors cursor-pointer"
             >
-              Quick Book
+              Check Open Courts
             </button>
           </div>
         </div>
