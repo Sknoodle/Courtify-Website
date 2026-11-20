@@ -1,6 +1,6 @@
 {
   "name": "Courtify — Find Open Pickleball Courts & Portable Court Packages in Orange County",
-  "description": "Find available pickleball courts around Orange County, CA with the Courtify app, or set up your own portable court in a driveway, cul-de-sac, or parking lot.",
+  "description": "Find available pickleball courts across the United States with the Courtify app, or set up your own portable court in a driveway, cul-de-sac, or parking lot.",
   "requestFramePermissions": [],
   "majorCapabilities": [
     "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"

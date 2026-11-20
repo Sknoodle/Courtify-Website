@@ -1,7 +1,8 @@
 import { useRef, useState } from 'react';
 import { motion, useScroll, useTransform } from 'motion/react';
-import { ArrowRight, Check, MapPin, SlidersHorizontal } from 'lucide-react';
+import { ArrowRight, Check, ExternalLink, Search } from 'lucide-react';
 import {
+  COURTIFY_APP_URL,
   COURTIFY_PILLARS,
   COURT_PACKAGES,
   CULDESAC_BANNER_IMAGE,
@@ -14,13 +15,12 @@ import { CourtifyLogo } from './CourtifyLogo';
 
 interface HomeViewProps {
   onNavigate: (page: PageRoute) => void;
-  onQuickLocate: (city: string, availabilityFilter: 'All' | 'Open Now') => void;
+  onSearchPackages: (query: string) => void;
   onSelectPackage: (packageId: string) => void;
 }
 
-export function HomeView({ onNavigate, onQuickLocate, onSelectPackage }: HomeViewProps) {
-  const [city, setCity] = useState<string>('Irvine');
-  const [availabilityFilter, setAvailabilityFilter] = useState<'All' | 'Open Now'>('Open Now');
+export function HomeView({ onNavigate, onSearchPackages, onSelectPackage }: HomeViewProps) {
+  const [quickSearch, setQuickSearch] = useState<string>('');
 
   const bannerRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
@@ -33,9 +33,9 @@ export function HomeView({ onNavigate, onQuickLocate, onSelectPackage }: HomeVie
   const overlayY = useTransform(scrollYProgress, [0, 1], ['0%', '14%']);
   const overlayOpacity = useTransform(scrollYProgress, [0, 0.9], [1, 0.25]);
 
-  const handleLocateSubmit = (e: React.FormEvent) => {
+  const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onQuickLocate(city, availabilityFilter);
+    onSearchPackages(quickSearch.trim());
   };
 
   return (
@@ -80,13 +80,13 @@ export function HomeView({ onNavigate, onQuickLocate, onSelectPackage }: HomeVie
               PICKLEBALL IS POSSIBLE ANYWHERE.
             </p>
             <p className="text-xs sm:text-sm font-medium text-[#FCFFAD]">
-              Driveways · Cul-de-Sacs · Parking Lots · Orange County Parks
+              Driveways · Cul-de-Sacs · Parking Lots · Public Parks Across the U.S.
             </p>
           </div>
         </motion.div>
       </div>
 
-      {/* Hero Section + Orange County Quick Court Finder Strip */}
+      {/* Hero Section */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-stretch">
           {/* Left Column: Proposition */}
@@ -99,7 +99,7 @@ export function HomeView({ onNavigate, onQuickLocate, onSelectPackage }: HomeVie
                 <span aria-hidden="true">/</span>
                 <span>Repeat</span>
                 <span aria-hidden="true">·</span>
-                <span>Orange County, CA</span>
+                <span>United States</span>
               </div>
 
               <h1
@@ -110,28 +110,28 @@ export function HomeView({ onNavigate, onQuickLocate, onSelectPackage }: HomeVie
               </h1>
 
               <p className="text-base sm:text-lg text-[#172819]/80 leading-relaxed max-w-xl">
-                Check live court availability across Orange County in the Courtify app. If every
-                nearby park is packed, turn your driveway, cul-de-sac, or parking lot into a court
-                in minutes.
+                Check live court availability across the U.S. in the Courtify app. If every nearby
+                park is packed, turn your driveway, cul-de-sac, or parking lot into a court in
+                minutes.
               </p>
             </div>
 
             <div className="flex flex-wrap items-center gap-5 pt-2">
               <button
                 type="button"
-                onClick={() => onNavigate('finder')}
+                onClick={() => onNavigate('packages')}
                 className="inline-flex items-center gap-2 px-6 py-3 text-sm font-semibold text-[#FCFFEB] bg-[#172E1B] hover:bg-[#627F65] rounded-lg transition-colors cursor-pointer whitespace-nowrap focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#627F65]"
               >
-                <span>Find Open Courts</span>
+                <span>Shop Portable Bundles</span>
                 <ArrowRight className="w-4 h-4" />
               </button>
 
               <button
                 type="button"
-                onClick={() => onNavigate('packages')}
+                onClick={() => onNavigate('about')}
                 className="inline-flex items-center gap-1.5 text-sm font-semibold text-[#172E1B] hover:text-[#627F65] transition-colors cursor-pointer whitespace-nowrap"
               >
-                <span>Shop Portable Court Bundles</span>
+                <span>About Courtify</span>
                 <ArrowRight className="w-4 h-4" />
               </button>
             </div>
@@ -151,7 +151,7 @@ export function HomeView({ onNavigate, onQuickLocate, onSelectPackage }: HomeVie
                   Better Gear. Bigger Rallies.
                 </p>
                 <p className="text-sm sm:text-base font-medium text-[#FCFFEB]/95 mt-0.5">
-                  Driveways · Cul-de-sacs · Parking lots · Orange County parks
+                  Driveways · Cul-de-sacs · Parking lots · Community parks
                 </p>
               </div>
               <span className="font-mono text-xs tabular-nums text-[#FCFFEB] bg-[#172E1B]/85 border border-[#A1CEA7]/40 px-3 py-1.5 rounded-md whitespace-nowrap self-start sm:self-auto">
@@ -161,61 +161,51 @@ export function HomeView({ onNavigate, onQuickLocate, onSelectPackage }: HomeVie
           </div>
         </div>
 
-        {/* Full-Width Quick Court Locator Bar */}
+        {/* Full-Width Quick Gear Search & Live App Bar */}
         <form
-          onSubmit={handleLocateSubmit}
-          aria-label="Find open courts in Orange County"
-          className="mt-8 bg-white border border-[#A1CEA7]/70 rounded-xl p-4 sm:p-5 grid grid-cols-1 sm:grid-cols-3 gap-4 items-end"
+          onSubmit={handleSearchSubmit}
+          aria-label="Search Courtify gear or open the court-finder app"
+          className="mt-8 bg-white border border-[#A1CEA7]/70 rounded-xl p-4 sm:p-5 grid grid-cols-1 md:grid-cols-12 gap-4 items-end"
         >
-          <div className="space-y-1.5">
+          <div className="md:col-span-6 space-y-1.5">
             <label
-              htmlFor="quick-oc-city"
+              htmlFor="home-gear-search"
               className="flex items-center gap-1.5 text-xs font-medium text-[#627F65]"
             >
-              <MapPin className="w-3.5 h-3.5 text-[#627F65]" />
-              <span>Orange County Area</span>
+              <Search className="w-3.5 h-3.5 text-[#627F65]" />
+              <span>Find Portable Courts, Paddles, Nets, or Balls</span>
             </label>
-            <select
-              id="quick-oc-city"
-              value={city}
-              onChange={(e) => setCity(e.target.value)}
-              className="w-full h-11 px-3 rounded-lg border border-[#A1CEA7]/70 bg-[#FCFFEB] text-sm font-medium text-[#172E1B] focus:outline-none focus:border-[#627F65]"
-            >
-              <option value="All OC">All Orange County</option>
-              <option value="Irvine">Irvine, CA</option>
-              <option value="Newport Beach">Newport Beach, CA</option>
-              <option value="Huntington Beach">Huntington Beach, CA</option>
-              <option value="Costa Mesa">Costa Mesa, CA</option>
-              <option value="Laguna Niguel">Laguna Niguel, CA</option>
-            </select>
+            <input
+              id="home-gear-search"
+              type="search"
+              value={quickSearch}
+              onChange={(e) => setQuickSearch(e.target.value)}
+              placeholder="Search Starter Collection, Backyard Bundle, Advanced Paddle..."
+              className="w-full h-11 px-3 rounded-lg border border-[#A1CEA7]/70 bg-[#FCFFEB] text-sm font-medium text-[#172E1B] placeholder:text-[#627F65]/70 focus:outline-none focus:border-[#627F65]"
+            />
           </div>
 
-          <div className="space-y-1.5">
-            <label
-              htmlFor="quick-availability"
-              className="flex items-center gap-1.5 text-xs font-medium text-[#627F65]"
+          <div className="md:col-span-3">
+            <button
+              type="submit"
+              className="w-full h-11 px-5 text-sm font-semibold text-[#FCFFEB] bg-[#627F65] hover:bg-[#172E1B] rounded-lg transition-colors cursor-pointer whitespace-nowrap flex items-center justify-center gap-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#627F65]"
             >
-              <SlidersHorizontal className="w-3.5 h-3.5 text-[#627F65]" />
-              <span>Court Availability</span>
-            </label>
-            <select
-              id="quick-availability"
-              value={availabilityFilter}
-              onChange={(e) => setAvailabilityFilter(e.target.value as 'All' | 'Open Now')}
-              className="w-full h-11 px-3 rounded-lg border border-[#A1CEA7]/70 bg-[#FCFFEB] text-sm font-medium text-[#172E1B] focus:outline-none focus:border-[#627F65]"
-            >
-              <option value="Open Now">Open Courts Right Now</option>
-              <option value="All">Show All OC Locations</option>
-            </select>
+              <span>Search Packages</span>
+              <ArrowRight className="w-4 h-4" />
+            </button>
           </div>
 
-          <button
-            type="submit"
-            className="w-full h-11 px-5 text-sm font-semibold text-[#FCFFEB] bg-[#627F65] hover:bg-[#172E1B] rounded-lg transition-colors cursor-pointer whitespace-nowrap flex items-center justify-center gap-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#627F65]"
-          >
-            <span>Check Nearby Courts</span>
-            <ArrowRight className="w-4 h-4" />
-          </button>
+          <div className="md:col-span-3">
+            <a
+              href={COURTIFY_APP_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-full h-11 px-4 text-sm font-semibold text-[#172E1B] bg-[#FCFFEB] border border-[#A1CEA7] hover:border-[#172E1B] rounded-lg transition-colors whitespace-nowrap flex items-center justify-center gap-2"
+            >
+              <span>Open App Locator</span>
+              <ExternalLink className="w-4 h-4 text-[#627F65]" />
+            </a>
+          </div>
         </form>
       </section>
 
@@ -228,7 +218,7 @@ export function HomeView({ onNavigate, onQuickLocate, onSelectPackage }: HomeVie
               More than a game. It&apos;s a lifestyle.
             </h2>
             <p className="text-sm sm:text-base text-[#172819]/75 leading-relaxed">
-              Whether you&apos;re locating an open OC park court on the app or laying down lines in
+              Whether you&apos;re locating an open park court on the app or laying down lines in
               your own driveway, Courtify brings premium pickleball gear anywhere you play.
             </p>
           </div>
@@ -257,7 +247,7 @@ export function HomeView({ onNavigate, onQuickLocate, onSelectPackage }: HomeVie
                 <div className="font-mono text-2xl font-semibold text-[#172E1B] tabular-nums">
                   $39.99
                 </div>
-                <div className="text-xs text-[#627F65] mt-1">Beginner paddles ready to play</div>
+                <div className="text-xs text-[#627F65] mt-1">Standard paddles ready to play</div>
               </div>
               <div>
                 <div className="font-mono text-2xl font-semibold text-[#172E1B] tabular-nums">
@@ -267,21 +257,21 @@ export function HomeView({ onNavigate, onQuickLocate, onSelectPackage }: HomeVie
               </div>
               <div>
                 <div className="font-mono text-2xl font-semibold text-[#172E1B] tabular-nums">
-                  91 courts
+                  U.S.-Wide
                 </div>
-                <div className="text-xs text-[#627F65] mt-1">Tracked live across 10 OC parks</div>
+                <div className="text-xs text-[#627F65] mt-1">Open courts or play anywhere</div>
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* The Courtify Bundles Preview (4 Tiers: Standard -> Premier) */}
+      {/* The 3 Courtify Portable Court Bundles Preview */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8">
           <div>
             <p className="text-xs font-semibold text-[#627F65] mb-1.5">
-              Play Anywhere · Temporary Example Imagery
+              Play Anywhere · Complete Portable Bundles
             </p>
             <h2 className="font-display text-2xl sm:text-3xl font-bold tracking-tight text-[#172E1B]">
               No open court nearby? Bring the court to you.
@@ -292,23 +282,23 @@ export function HomeView({ onNavigate, onQuickLocate, onSelectPackage }: HomeVie
             onClick={() => onNavigate('packages')}
             className="inline-flex items-center gap-1.5 text-sm font-semibold text-[#172E1B] hover:text-[#627F65] transition-colors cursor-pointer whitespace-nowrap shrink-0"
           >
-            <span>Shop 4 bundles &amp; lineup</span>
+            <span>Shop all packages &amp; gear</span>
             <ArrowRight className="w-4 h-4" />
           </button>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {COURT_PACKAGES.map((pkg) => (
             <article
               key={pkg.id}
               className="group bg-white border border-[#A1CEA7]/70 rounded-xl overflow-hidden flex flex-col hover:shadow-md hover:-translate-y-0.5 transition-all duration-200"
             >
-              <div className="aspect-[4/3] bg-[#FCFFEB] overflow-hidden">
+              <div className="aspect-[4/3] bg-white border-b border-[#A1CEA7]/40 overflow-hidden">
                 <ResilientImage
                   src={pkg.image}
                   alt={`${pkg.tierName} package — ${pkg.name}`}
                   fallbackTitle={pkg.name}
-                  className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-300"
+                  className="w-full h-full object-contain p-4 group-hover:scale-[1.02] transition-transform duration-300"
                 />
               </div>
 
@@ -316,7 +306,7 @@ export function HomeView({ onNavigate, onQuickLocate, onSelectPackage }: HomeVie
                 <div className="space-y-1.5">
                   <div className="flex items-center justify-between text-xs text-[#627F65]">
                     <span className="font-medium">
-                      {pkg.tierNumber} · {pkg.tierName}
+                      {pkg.sku} · {pkg.tierName}
                     </span>
                     <span className="font-mono tabular-nums">{pkg.paddleSpec}</span>
                   </div>
@@ -351,7 +341,7 @@ export function HomeView({ onNavigate, onQuickLocate, onSelectPackage }: HomeVie
         </div>
       </section>
 
-      {/* Courtify App Early Access Banner */}
+      {/* Courtify App Banner */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="bg-[#172E1B] rounded-2xl p-8 sm:p-12 text-[#FCFFEB] grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
           <div className="lg:col-span-7 space-y-4">
@@ -359,14 +349,13 @@ export function HomeView({ onNavigate, onQuickLocate, onSelectPackage }: HomeVie
               Real Gear. Real Players. Real Impact.
             </p>
             <h2 className="font-display text-2xl sm:text-3xl font-bold tracking-tight text-balance">
-              Find open Orange County courts in real time with the Courtify app.
+              Find open courts nationwide in real time with the Courtify app.
             </h2>
             <ul className="space-y-2 text-sm text-[#FCFFEB]/85 pt-1">
               <li className="flex items-center gap-2">
                 <Check className="w-4 h-4 text-[#FCFFAD] shrink-0" />
                 <span>
-                  Live open-court availability across Irvine, Newport Beach, Costa Mesa, Laguna
-                  Niguel, and Huntington Beach
+                  Check live open-court availability across parks and recreation centers throughout the U.S.
                 </span>
               </li>
               <li className="flex items-center gap-2">
@@ -386,7 +375,7 @@ export function HomeView({ onNavigate, onQuickLocate, onSelectPackage }: HomeVie
               onClick={() => onNavigate('app')}
               className="px-5 py-3.5 text-sm font-semibold text-[#172E1B] bg-[#FCFFAD] hover:bg-[#FCFFEB] rounded-xl transition-colors cursor-pointer whitespace-nowrap shrink-0"
             >
-              Join Early Access
+              Explore the App
             </button>
           </div>
         </div>

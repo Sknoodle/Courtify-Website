@@ -6,17 +6,17 @@ import { CourtifyLogo } from './CourtifyLogo';
 interface HeaderProps {
   currentPage: PageRoute;
   onNavigate: (page: PageRoute) => void;
-  onFindCourts: () => void;
 }
 
 const NAV_ITEMS: { id: PageRoute; label: string }[] = [
   { id: 'home', label: 'Home' },
-  { id: 'finder', label: 'Find Courts' },
+  { id: 'about', label: 'About Us' },
   { id: 'packages', label: 'Packages' },
-  { id: 'app', label: 'Get the App' },
+  { id: 'faq', label: 'FAQ' },
+  { id: 'app', label: 'Courtify App' },
 ];
 
-export function Header({ currentPage, onNavigate, onFindCourts }: HeaderProps) {
+export function Header({ currentPage, onNavigate }: HeaderProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const handleNav = (page: PageRoute) => {
@@ -37,7 +37,7 @@ export function Header({ currentPage, onNavigate, onFindCourts }: HeaderProps) {
           <CourtifyLogo size="header" />
         </button>
 
-        {/* Zone 2: 4 clean single-line text nav links */}
+        {/* Zone 2: 5 clean single-line text nav links */}
         <nav
           aria-label="Primary Navigation"
           className="hidden md:flex items-center gap-7 text-sm font-medium text-[#172819]/75"
@@ -71,13 +71,10 @@ export function Header({ currentPage, onNavigate, onFindCourts }: HeaderProps) {
         <div className="flex items-center gap-3 shrink-0">
           <button
             type="button"
-            onClick={() => {
-              setMobileMenuOpen(false);
-              onFindCourts();
-            }}
+            onClick={() => handleNav('packages')}
             className="hidden md:inline-flex items-center justify-center px-4 py-2 text-sm font-semibold text-[#FCFFEB] bg-[#172E1B] hover:bg-[#627F65] rounded-lg transition-colors whitespace-nowrap shrink-0 cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#627F65]"
           >
-            Check Open Courts
+            Shop Packages
           </button>
 
           <button
@@ -115,13 +112,10 @@ export function Header({ currentPage, onNavigate, onFindCourts }: HeaderProps) {
           <div className="pt-2 border-t border-[#A1CEA7]/40">
             <button
               type="button"
-              onClick={() => {
-                setMobileMenuOpen(false);
-                onFindCourts();
-              }}
+              onClick={() => handleNav('packages')}
               className="w-full py-2.5 px-4 text-sm font-semibold text-[#FCFFEB] bg-[#172E1B] hover:bg-[#627F65] rounded-lg transition-colors cursor-pointer"
             >
-              Check Open Courts
+              Shop Packages
             </button>
           </div>
         </div>
